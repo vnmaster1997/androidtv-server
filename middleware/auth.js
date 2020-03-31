@@ -6,7 +6,7 @@ module.exports = function(req, res, next) {
         message: "Auth Error"
     });
     try {
-        const decoded = jwt.verify(token, "secret");
+        const decoded = jwt.verify(token, "loginSecret");
         req.user = decoded.user;
         next();
     } catch(e) {

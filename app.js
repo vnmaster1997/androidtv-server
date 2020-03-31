@@ -4,12 +4,12 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const bodyParser = require('body-parser');
-const InitialMongoServer = require("./data/connectDB");
+const ConnectDB = require("./data/connectDB");
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
-InitialMongoServer();
+ConnectDB();
 var app = express();
 
 // view engine setup

@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 const config = require("../config/mongoose.json");
 
-const MONGOURI = `mongodb://localhost:27017/androidtv`;
+const MONGOURI = `mongodb://${config.hostName}/${config.dbName}`;
 
-const InitialMongoServer = async() => {
+const ConnectDB = async() => {
     try {
         await mongoose.connect(MONGOURI, { useNewUrlParser: true});
         console.log("Connect database success!");
@@ -13,4 +13,4 @@ const InitialMongoServer = async() => {
     }
 }
 
-module.exports = InitialMongoServer;
+module.exports = ConnectDB;
