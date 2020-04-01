@@ -2,8 +2,12 @@ var userService = require('../services/userService');
 const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const config = require("../config/mongoose.json");
 const auth = require('../middleware/auth');
 const User = require("../models/user");
+const utils = require('../utils/util');
+const refreshTokenList = [];
+
 module.exports = {
     authLogin: async (req, res) => {
         const errors = validationResult(req);
@@ -36,20 +40,32 @@ module.exports = {
                 }
             };
 
-            jwt.sign(
+            // login success, create token for user
+            const token = jwt.sign(
                 payload,
-                "loginSecret",
+                config.tokenSecret,
                 {
-                    expiresIn: '1d'
-                },
-                (err, token) => {
-                    if (err) throw err;
-                    res.status(200).json({
-                        user,
-                        token
-                    });
+                    expiresIn: config.tokenLife
                 }
             );
+
+            // create other token - refreshToken
+            const refreshToken = jwt.sign(
+                payload,
+                config.refreshTokenSecret,
+                {
+                    expiresIn: config.refreshTokenLife
+                }
+            )
+
+            // save refreshToken, attach user information 
+            refreshTokenList[refreshToken] = user;
+            const response = {
+                user,
+                token,
+                refreshToken
+            }
+            res.json(response);
         } catch (e) {
             console.error(e);
             res.status(500).json({
@@ -57,6 +73,47 @@ module.exports = {
             });
         }
     },
+
+    getNewToken: async (req, res) => {
+        // User attach refreshToken in body
+        const { refreshToken } = req.body;
+        // If refreshToken exists!
+        if( (refreshToken) && (refreshToken in refreshTokenList)) {
+            try {
+                // check refreshToken
+                await utils.verifyJwtToken(refreshToken, config.refreshTokenSecret);
+                // get User information
+                const user = refreshTokenList[refreshToken];
+
+                const payload = {
+                    user: {
+                        id: user.id
+                    }
+                };
+                // create new token and response it to user;
+                const token = jwt.sign(
+                    payload,
+                    config.tokenSecret,
+                    {
+                        expiresIn: config.tokenLife
+                    }
+                )
+
+                const response = {
+                    user,
+                    token,
+                    refreshToken
+                }
+                res.status(200).json(response);
+            } catch(err) {
+                console.error(err);
+                res.status(403).json({
+                    message: 'Invalid refresh token'
+                })
+            }
+        }
+    },
+
     signUp: async (req, res) => {
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
@@ -98,7 +155,7 @@ module.exports = {
 				payload,
 				"signUpSecret", 
 				{
-					expiresIn: '1d'
+					expiresIn: config.tokenLife
 				},
 				(err, token) => {
 					if (err) throw err;

@@ -38,7 +38,10 @@ router.post(
 	controllers.authLogin
 );
 
-
+router.post(
+	"/refreshToken",
+	controllers.getNewToken
+)
 
 /* GET users listing. */
 router.get('/all', function (req, res, next) {
