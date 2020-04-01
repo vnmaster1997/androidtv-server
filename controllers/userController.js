@@ -25,13 +25,15 @@ module.exports = {
             });
             if (!user)
                 return res.status(400).json({
-                    message: "User Not Exist"
+                    message: "User Not Exist",
+                    login: false,
                 });
 
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch)
                 return res.status(400).json({
-                    message: "Incorrect Password !"
+                    message: "Incorrect Password !",
+                    login: false
                 });
 
             const payload = {
@@ -61,7 +63,13 @@ module.exports = {
             // save refreshToken, attach user information 
             refreshTokenList[refreshToken] = user;
             const response = {
-                user,
+                id: user.id,
+                username: user.username,
+                password: user.password,
+                email: user.email,
+                avatar_url: user.avatar_url,
+                createAt: user.createAt,
+                login: true,
                 token,
                 refreshToken
             }
@@ -118,7 +126,8 @@ module.exports = {
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
 			return res.status(400).json({
-				errors: errors.array()
+                errors: errors.array(),
+                register: false
 			});
 		}
 
@@ -133,7 +142,8 @@ module.exports = {
 			});
 			if (user) {
 				return res.status(400).json({
-					msg: "User Already Exists"
+                    msg: "User Already Exists",
+                    register: false
 				});
 			}
 
@@ -149,22 +159,39 @@ module.exports = {
 				user: {
 					id: user.id
 				}
-			};
+            };
+            await user.save();
+                        // create other token - refreshToken
+                        const refreshToken = jwt.sign(
+                            payload,
+                            config.refreshTokenSecret,
+                            {
+                                expiresIn: config.refreshTokenLife
+                            }
+                        )
+            
+                        // save refreshToken, attach user information 
+                        refreshTokenList[refreshToken] = user;
 
-			jwt.sign(
+			const token = jwt.sign(
 				payload,
 				"signUpSecret", 
 				{
 					expiresIn: config.tokenLife
-				},
-				(err, token) => {
-					if (err) throw err;
-					res.status(200).json({
-						token
-					});
 				}
-			);
-			await user.save();
+            );
+            const response = {
+                id: user.id,
+                username: user.username,
+                password: user.password,
+                email: user.email,
+                avatar_url: user.avatar_url,
+                createAt: user.createAt,
+                register: true,
+                token,
+                refreshToken
+            }
+            res.json(response);
 		} catch (err) {
 			console.log(err.message);
 			res.status(500).send("Error in Saving");

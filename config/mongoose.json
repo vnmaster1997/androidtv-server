@@ -6,6 +6,6 @@
     "port": "3000",
     "tokenSecret": "loginToken",
     "refreshTokenSecret": "loginRefreshToken",
-    "tokenLife": 1000,
+    "tokenLife": 3600,
     "refreshTokenLife": 86400
 }
