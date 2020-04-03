@@ -260,7 +260,7 @@ module.exports = {
             await user.save();
             res.send({
                 message: "Change password success!",
-                resetPassword: true
+                changePassword: true
             })
         } catch (e) {
             res.send({ message: "Error in change password" })
