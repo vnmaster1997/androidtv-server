@@ -58,6 +58,8 @@ router.post('/avatar', auth, imageUploader.single('avatar'), controllers.uploadA
 
 router.get('/avatar/:name', controllers.getAvatar)
 
+router.post('/changepassword', auth, controllers.changePassword)
+
 router.get(
     'logout',
     controllers.logOut

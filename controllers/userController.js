@@ -210,7 +210,7 @@ module.exports = {
             let response = uploadService.uploadAvatar(req.file);
             if (response) {
                 console.log(path.resolve(`./assets/${response.fileNameInServ}`))
-                user.avatar_url = `${config.baseURL}/users/avatar/${response.fileNameInServ}`;
+                user.avatar_url = `http://${config.baseURL}/users/avatar/${response.fileNameInServ}`;
                 response.avatar_url = user.avatar_url;
                 await user.save();
             }
@@ -233,6 +233,37 @@ module.exports = {
             res.sendFile(path.resolve(`./assets/${fileName}`));
         } catch (e) {
             res.send({ message: "Error in get avatar" })
+        }
+    },
+
+    changePassword: async(req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({
+                changePassword: false,
+                message: errors.array()
+            })
+        }
+        try {
+            let user = await User.findById(req.user.id);
+            console.log(user)
+            const { currentpassword, newpassword } = req.body;
+            const isMatch = await bcrypt.compare(currentpassword, user.password);
+            if (!isMatch)
+                return res.status(400).json({
+                    message: "Incorrect Password !",
+                    changePassword: false
+                });
+
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(newpassword, salt);
+            await user.save();
+            res.send({
+                message: "Change password success!",
+                resetPassword: true
+            })
+        } catch (e) {
+            res.send({ message: "Error in change password" })
         }
     },
 
