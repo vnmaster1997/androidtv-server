@@ -211,6 +211,7 @@ module.exports = {
             if (response) {
                 console.log(path.resolve(`./assets/${response.fileNameInServ}`))
                 user.avatar_url = `${config.baseURL}/users/avatar/${response.fileNameInServ}`;
+                response.avatar_url = user.avatar_url;
                 await user.save();
             }
             res.json(response);
