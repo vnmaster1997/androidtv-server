@@ -249,7 +249,7 @@ module.exports = {
             const { currentpassword, newpassword } = req.body;
             const isMatch = await bcrypt.compare(currentpassword, user.password);
             if (!isMatch)
-                return res.status(400).json({
+                return res.json({
                     message: "Incorrect Password !",
                     changePassword: false
                 });
