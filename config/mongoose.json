@@ -1,11 +1,12 @@
 {
     "dbName": "androidtv",
-    "hostName": "localhost:27017",
+    "dbURL": "localhost:27017",
+    "baseURL": "localhost:3000",
     "username": "admin",
     "password": "admin",
     "port": "3000",
     "tokenSecret": "loginToken",
     "refreshTokenSecret": "loginRefreshToken",
-    "tokenLife": 3600,
+    "tokenLife": 10800,
     "refreshTokenLife": 86400
 }

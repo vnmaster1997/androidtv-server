@@ -1,13 +1,13 @@
 const mongoose = require("mongoose");
 const config = require("../config/mongoose.json");
 
-const MONGOURI = `mongodb://${config.hostName}/${config.dbName}`;
+const MONGOURI = `mongodb://${config.dbURL}/${config.dbName}`;
 
 const ConnectDB = async() => {
     try {
-        await mongoose.connect(MONGOURI, { useNewUrlParser: true});
+        await mongoose.connect(MONGOURI, { useNewUrlParser: true });
         console.log("Connect database success!");
-    } catch(e) {
+    } catch (e) {
         console.log(e);
         throw e;
     }
