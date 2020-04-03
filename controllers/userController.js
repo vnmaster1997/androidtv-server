@@ -14,7 +14,7 @@ module.exports = {
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            return res.status(400).json({
+            return res.json({
                 errors: errors.array()
             });
         }
@@ -25,14 +25,14 @@ module.exports = {
                 username
             });
             if (!user)
-                return res.status(400).json({
+                return res.json({
                     message: "User Not Exist",
                     login: false,
                 });
 
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch)
-                return res.status(400).json({
+                return res.json({
                     message: "Incorrect Password !",
                     login: false
                 });
@@ -75,8 +75,8 @@ module.exports = {
             res.json(response);
         } catch (e) {
             console.error(e);
-            res.status(500).json({
-                message: "Server Error"
+            res.json({
+                message: e
             });
         }
     },
@@ -110,10 +110,10 @@ module.exports = {
                     token,
                     refreshToken
                 }
-                res.status(200).json(response);
+                res.json(response);
             } catch (err) {
                 console.error(err);
-                res.status(403).json({
+                res.json({
                     message: 'Invalid refresh token'
                 })
             }
@@ -123,7 +123,7 @@ module.exports = {
     signUp: async(req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({
+            return res.json({
                 errors: errors.array(),
                 register: false
             });
@@ -139,8 +139,8 @@ module.exports = {
                 username
             });
             if (user) {
-                return res.status(400).json({
-                    msg: "User Already Exists",
+                return res.json({
+                    message: "User Already Exists",
                     register: false
                 });
             }
@@ -189,8 +189,7 @@ module.exports = {
             }
             res.json(response);
         } catch (err) {
-            console.log(err.message);
-            res.status(500).send("Error in Saving");
+            res.json({ message: err });
         }
     },
 
@@ -200,7 +199,7 @@ module.exports = {
             const user = await User.findById(req.user.id);
             res.json(user);
         } catch (e) {
-            res.send({ message: "Error in fetching user!" })
+            res.send({ message: e })
         }
     },
 
@@ -239,7 +238,7 @@ module.exports = {
     changePassword: async(req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            res.status(400).json({
+            res.json({
                 changePassword: false,
                 message: errors.array()
             })
